@@ -47,11 +47,11 @@ button {
   width: 100px;
 }
 
-.row:after {
+/* .row:after {
   clear: both;
   content: '';
   display: table;
-}
+} */
 
 .status {
   display: flex;
