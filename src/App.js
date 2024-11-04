@@ -1,22 +1,59 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import lightIcon from "./icons/light-icon.svg";
+import darkIcon from "./icons/dark-icon.svg";
 
 export default function Game() {
   const [history, setHistory] = useState([Array(9).fill(null)]);
   const [currentMove, setCurrentMove] = useState(0);
-  const xIsNext = currentMove % 2 === 0;
+  const [playerSymbol, setPlayerSymbol] = useState(null);
+  const [aiSymbol, setAiSymbol] = useState(null);
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [xIsNext, setXIsNext] = useState(null);
   const currentSquares = history[currentMove];
 
+  useEffect(() => {
+    if (aiSymbol && !xIsNext && !calculateWinner(currentSquares)) {
+      const aiSquares = aiMove(currentSquares);
+      handlePlay(aiSquares);
+    }
+
+    if (localStorage.getItem("isDarkMode") === "true") {
+      document.body.classList.add("dark-mode");
+      setIsDarkMode(true);
+    }
+  }, [aiSymbol, xIsNext, currentSquares]);
+
+  function handleSymbolChoice(symbol) {
+    setPlayerSymbol(symbol);
+    setAiSymbol(symbol === "X" ? "O" : "X");
+    const firstMove = Math.random() < 0.5;
+    setXIsNext(firstMove);
+  }
+
   function handlePlay(nextSquares) {
-    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares]
+    const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
     setHistory(nextHistory);
-    setCurrentMove(nextHistory.length - 1)
+    setCurrentMove(nextHistory.length - 1);
   }
 
   function jumpTo(nextMove) {
-    setCurrentMove(nextMove)
+    setCurrentMove(nextMove);
   }
 
-  const moves = history.map((squares, move) => {
+  function toggleDarkMode() {
+    setIsDarkMode((prevMode) => {
+      const newMode = !prevMode;
+      if (newMode) {
+        document.body.classList.add("dark-mode");
+      } else {
+        document.body.classList.remove("dark-mode");
+      }
+      localStorage.setItem("isDarkMode", newMode);
+      return newMode;
+    });
+  }
+
+  const moves = history.map((_, move) => {
     let description;
     if (move > 0) {
       description = `Go to move #${move}`;
@@ -30,16 +67,45 @@ export default function Game() {
     );
   });
 
+  if (!playerSymbol) {
+    return (
+      <>
+        <button onClick={toggleDarkMode} className="dark-mode-toggle">
+          <img src={isDarkMode ? lightIcon : darkIcon} alt="Toggle theme" />
+        </button>
+        <div className="symbol-choice">
+          <h2>Choose your symbol</h2>
+          <button onClick={() => handleSymbolChoice("X")}>X</button>
+          <button onClick={() => handleSymbolChoice("O")}>O</button>
+        </div>
+      </>
+    );
+  }
+
   return (
     <div className="game">
+      <button onClick={toggleDarkMode} className="dark-mode-toggle">
+        <img src={isDarkMode ? lightIcon : darkIcon} alt="Toggle theme" />
+      </button>
       <div className="game-board">
-        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} />
+        <Board xIsNext={xIsNext} squares={currentSquares} onPlay={handlePlay} playerSymbol={playerSymbol} />
       </div>
       <div>
         <ol>{moves}</ol>
       </div>
     </div>
   );
+}
+
+function aiMove(squares) {
+  const availableMoves = squares
+    .map((square, index) => (square === null ? index : null))
+    .filter(element => element !== null);
+
+  const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  const newSquares = squares.slice();
+  newSquares[randomMove] = "O";
+  return newSquares;
 }
 
 function Square({ value, onSquareClick }) {
@@ -50,13 +116,13 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-function Board({ xIsNext, squares, onPlay }) {
+function Board({ xIsNext, squares, onPlay, playerSymbol }) {
   const winner = calculateWinner(squares);
   let status;
   if (winner) {
     status = `Winner: ${winner}`;
   } else {
-    status = `Next Player: ${xIsNext ? "X" : "O"}`;
+    status = `Next Player: ${xIsNext ? (playerSymbol === "X" ? "X" : "O") : (playerSymbol === "X" ? "O" : "X")}`;
   }
 
   function handleClick(i) {
@@ -64,17 +130,15 @@ function Board({ xIsNext, squares, onPlay }) {
       return;
     }
     const nextSquares = squares.slice();
-    if (xIsNext) {
-      nextSquares[i] = "X";
-    } else {
-      nextSquares[i] = "O";
-    }
+    nextSquares[i] = xIsNext ? playerSymbol : (playerSymbol === "X" ? "O" : "X");
     onPlay(nextSquares);
   }
 
   return (
-    <div>
-      <div className="status"><h1>{status}</h1></div>
+    <>
+      <div className="status">
+        <h1>{status}</h1>
+      </div>
       <div className="row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
@@ -90,7 +154,7 @@ function Board({ xIsNext, squares, onPlay }) {
         <Square value={squares[7]} onSquareClick={() => handleClick(7)} />
         <Square value={squares[8]} onSquareClick={() => handleClick(8)} />
       </div>
-    </div>
+    </>
   );
 }
 

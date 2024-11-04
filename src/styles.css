@@ -2,15 +2,49 @@
   box-sizing: border-box;
   margin: 0;
   padding: 0;
+}
+
+@font-face {
   font-family: 'Roboto Mono';
   src: url('./fonts/RobotoMono-Thin.ttf') format('truetype');
 }
 
+html {
+  width: 100%;
+  height: 100%;
+}
+
 body {
-  font-family: sans-serif;
+  font-family: 'Roboto Mono', sans-serif;
   margin: 20px;
   padding: 0;
   background-color: #f9f9c9;
+  color: #333;
+}
+
+.symbol-choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 100px;
+}
+
+.symbol-choice h2 {
+  font-size: 2.5em;
+  margin-bottom: 20px;
+}
+
+.symbol-choice button {
+  width: 260px;
+  margin-top: 5px;
+  font-size: 22px;
+  background-color: #e6e6e6;
+  border: 2px solid #999;
+  border-radius: 5px;
+  color: #333;
+  padding: 10px;
+  transition: background-color 0.3s;
 }
 
 code {
@@ -26,38 +60,55 @@ ol {
   list-style-type: lower-roman;
 }
 
-button {
+li button {
   width: 260px;
   margin-top: 5px;
   font-size: 22px;
+  background-color: #e6e6e6;
+  border: 2px solid #999;
+  border-radius: 5px;
+  color: #333;
+  padding: 10px;
+  transition: background-color 0.3s;
+}
+
+li button:hover {
+  background-color: #ddd;
+  cursor: pointer;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
 }
 
 .square {
   background: #fff;
   border: 2px solid #999;
-  float: left;
   font-size: 72px;
   font-weight: bold;
   line-height: 34px;
-  height: 100px;
-  margin-right: -1px;
-  margin-top: -1px;
   padding: 0;
   text-align: center;
-  width: 100px;
+  width: 25vw;
+  height: 25vw;
+  max-width: 100px;
+  max-height: 100px;
+  margin-right: -2px;
+  margin-top: -2px;
+  font-size: calc(20px + 4vw);
 }
 
-/* .row:after {
-  clear: both;
-  content: '';
-  display: table;
-} */
+.square:hover {
+  background: #f0f0f0;
+  cursor: pointer;
+}
 
 .status {
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 10px;
+  margin-bottom: 20px;
 }
 
 .game {
@@ -65,4 +116,41 @@ button {
   align-items: center;
   justify-content: center;
   flex-direction: column;
+  margin-top: 100px;
+}
+
+.game-board {
+  margin-bottom: 20px;
+}
+
+/* Dark mode */
+.dark-mode {
+  background-color: #2d2d2d;
+  color: #f1f1f1;
+}
+
+.dark-mode .square {
+  background: #444;
+  color: #f1f1f1;
+}
+
+.dark-mode li button {
+  background-color: #555;
+  color: #f1f1f1;
+  border: 2px solid #777;
+}
+
+.dark-mode-toggle {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+}
+
+.dark-mode-toggle img {
+  width: 30px;
+  height: 30px;
 }
