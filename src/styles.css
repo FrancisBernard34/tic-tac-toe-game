@@ -35,46 +35,33 @@ body {
   margin-bottom: 20px;
 }
 
+.symbol-choice .symbol-buttons {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 20px;
+}
+
 .symbol-choice button {
-  width: 260px;
+  width: 120px;
+  height: 120px;
   margin-top: 5px;
-  font-size: 22px;
-  background-color: #e6e6e6;
+  font-size: 3.5em;
+  background-color: #f0f0f0;
   border: 2px solid #999;
   border-radius: 5px;
   color: #333;
   padding: 10px;
+  cursor: pointer;
   transition: background-color 0.3s;
+}
+
+.symbol-choice button:hover {
+  background-color: #e6e6e6;
 }
 
 code {
   font-size: 1.2em;
-}
-
-ul {
-  padding-left: 20px;
-}
-
-ol {
-  font-size: 22px;
-  list-style-type: lower-roman;
-}
-
-li button {
-  width: 260px;
-  margin-top: 5px;
-  font-size: 22px;
-  background-color: #e6e6e6;
-  border: 2px solid #999;
-  border-radius: 5px;
-  color: #333;
-  padding: 10px;
-  transition: background-color 0.3s;
-}
-
-li button:hover {
-  background-color: #ddd;
-  cursor: pointer;
 }
 
 .row {
@@ -120,7 +107,36 @@ li button:hover {
 }
 
 .game-board {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 20px;
+}
+
+.game-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.game-controls button {
+  width: 260px;
+  margin: 0;
+  font-size: 22px;
+  outline: none;
+  border: none;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+  color: #333;
+  padding: 10px;
+  transition: background-color 0.3s;
+}
+
+.game-controls button:hover {
+  background-color: #e6e6e6;
+  cursor: pointer;
 }
 
 /* Dark mode */
@@ -129,15 +145,35 @@ li button:hover {
   color: #f1f1f1;
 }
 
+.dark-mode .symbol-choice button {
+  background-color: #444;
+  color: #f1f1f1;
+}
+
+.dark-mode .symbol-choice button:hover {
+  background-color: #333;
+}
+
 .dark-mode .square {
   background: #444;
   color: #f1f1f1;
 }
 
-.dark-mode li button {
-  background-color: #555;
+.dark-mode .square:hover {
+  background: #333;
+}
+
+.dark-mode .status {
   color: #f1f1f1;
-  border: 2px solid #777;
+}
+
+.dark-mode .game-controls button {
+  background-color: #444;
+  color: #f1f1f1;
+}
+
+.dark-mode .game-controls button:hover {
+  background-color: #333;
 }
 
 .dark-mode-toggle {

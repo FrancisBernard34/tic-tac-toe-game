@@ -6,8 +6,9 @@ export default function Game() {
   const [squares, setSquares] = useState(Array(9).fill(null));
   const [playerSymbol, setPlayerSymbol] = useState(null);
   const [aiSymbol, setAiSymbol] = useState(null);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [playerIsNext, setPlayerIsNext] = useState(null);
+  const [status, setStatus] = useState("Choose your symbol");
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
     if (aiSymbol && !playerIsNext && !calculateWinner(squares)) {
@@ -33,12 +34,21 @@ export default function Game() {
   }
 
   function handlePlay(index) {
+    if (playerIsNext === false) return;
     if (squares[index] || calculateWinner(squares)) return;
 
     const newSquares = squares.slice();
     newSquares[index] = playerIsNext ? playerSymbol : aiSymbol;
     setSquares(newSquares);
     setPlayerIsNext(!playerIsNext);
+  }
+
+  function gameReset() {
+    setSquares(Array(9).fill(null));
+    setPlayerSymbol(null);
+    setAiSymbol(null);
+    setPlayerIsNext(null);
+    setStatus("Choose your symbol");
   }
 
   function toggleDarkMode() {
@@ -62,8 +72,10 @@ export default function Game() {
         </button>
         <div className="symbol-choice">
           <h2>Choose your symbol</h2>
-          <button onClick={() => handleSymbolChoice("X")}>X</button>
-          <button onClick={() => handleSymbolChoice("O")}>O</button>
+          <div className="symbol-buttons">
+            <button onClick={() => handleSymbolChoice("X")}>X</button>
+            <button onClick={() => handleSymbolChoice("O")}>O</button>
+          </div>
         </div>
       </>
     );
@@ -75,8 +87,18 @@ export default function Game() {
         <img src={isDarkMode ? lightIcon : darkIcon} alt="Toggle theme" />
       </button>
       <div className="game-board">
-        <Board squares={squares} onPlay={handlePlay} playerIsNext={playerIsNext} playerSymbol={playerSymbol} aiSymbol={aiSymbol} />
+        <Board
+          squares={squares}
+          onPlay={handlePlay}
+          status={status}
+          playerIsNext={playerIsNext}
+          playerSymbol={playerSymbol}
+          aiSymbol={aiSymbol}
+        />
       </div>
+      <button className="game-controls">
+        <button onClick={() => gameReset()}>Restart</button>
+      </button>
     </div>
   );
 }
@@ -86,7 +108,8 @@ function aiMove(squares, aiSymbol) {
     .map((square, index) => (square === null ? index : null))
     .filter((index) => index !== null);
 
-  const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+  const randomMove =
+    availableMoves[Math.floor(Math.random() * availableMoves.length)];
   const newSquares = squares.slice();
   newSquares[randomMove] = aiSymbol;
 
@@ -101,9 +124,24 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-function Board({ squares, onPlay, playerIsNext, playerSymbol, aiSymbol }) {
+function Board({
+  squares,
+  onPlay,
+  status,
+  playerIsNext,
+  playerSymbol,
+  aiSymbol,
+}) {
   const winner = calculateWinner(squares);
-  const status = winner ? `Winner: ${winner}` : `Next Player: ${playerIsNext ? playerSymbol : aiSymbol}`;
+  if (winner) {
+    status = `Winner: ${winner}`;
+  } else if (!squares.includes(null)) {
+    status = "Draw!";
+  } else {
+    status = playerIsNext
+      ? `Player's turn (${playerSymbol})`
+      : `AI's turn (${aiSymbol})`;
+  }
 
   function handleClick(i) {
     onPlay(i);
