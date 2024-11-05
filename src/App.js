@@ -7,30 +7,100 @@ export default function Game() {
   const [playerSymbol, setPlayerSymbol] = useState(null);
   const [aiSymbol, setAiSymbol] = useState(null);
   const [playerIsNext, setPlayerIsNext] = useState(null);
-  const [status, setStatus] = useState("Choose your symbol");
+  const [statusMessage, setStatusMessage] = useState("Choose your symbol");
+  const [gamesPlayed, setGamesPlayed] = useState(0);
+  const [difficultyLevel, setDifficultyLevel] = useState(1);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    if (aiSymbol && !playerIsNext && !calculateWinner(squares)) {
-      const aiMoveTimeout = setTimeout(() => {
-        const aiSquares = aiMove(squares, aiSymbol);
-        setSquares(aiSquares);
-        setPlayerIsNext(true);
-      }, 1200);
-
-      return () => clearTimeout(aiMoveTimeout);
-    }
-
     if (localStorage.getItem("isDarkMode") === "true") {
       document.body.classList.add("dark-mode");
       setIsDarkMode(true);
     }
-  }, [aiSymbol, playerIsNext, squares]);
+
+    if (playerIsNext === true) {
+      setStatusMessage(`Player's turn (${playerSymbol})`);
+    } else if (playerIsNext === false) {
+      setStatusMessage(`AI's turn (${aiSymbol})`);
+      handleAiMove();
+    }
+  }, [playerIsNext]);
+
+  useEffect(() => {
+    if (gamesPlayed > 0 && gamesPlayed % 5 === 0 && difficultyLevel < 3) {
+      setDifficultyLevel(difficultyLevel + 1);
+    }
+  }, [gamesPlayed, difficultyLevel]);
 
   function handleSymbolChoice(symbol) {
     setPlayerSymbol(symbol);
     setAiSymbol(symbol === "X" ? "O" : "X");
     setPlayerIsNext(Math.random() < 0.5);
+  }
+
+  function changeStatusMessage(playerIsNext, winner) {
+    if (winner) {
+      if (winner === playerSymbol) {
+        setStatusMessage("You won!");
+      } else {
+        setStatusMessage("You lost!");
+      }
+    } else if (!squares.includes(null)) {
+      setStatusMessage("Draw!");
+    } else {
+      setStatusMessage(
+        playerIsNext
+          ? `Player's turn (${playerSymbol})`
+          : `AI's turn (${aiSymbol})`
+      );
+    }
+  }
+
+  function aiMove(squares, playerSymbol, aiSymbol) {
+    if (difficultyLevel === 1) return randomMove(squares, aiSymbol);
+    if (difficultyLevel === 2)
+      return blockingMove(squares, playerSymbol, aiSymbol);
+
+    return minimaxMove(squares, aiSymbol, playerSymbol);
+  }
+
+  function handleAiMove() {
+    if (
+      playerIsNext ||
+      calculateWinner(squares) ||
+      squares.every((square) => square !== null)
+    )
+      return;
+
+    const aiMoveTimeout = setTimeout(() => {
+      const aiSquares = aiMove(squares, playerSymbol, aiSymbol);
+      setSquares(aiSquares);
+
+      if (calculateWinner(aiSquares) === aiSymbol) {
+        setStatusMessage("You lost.");
+        setGamesPlayed(gamesPlayed + 1);
+      } else {
+        changeStatusMessage(playerIsNext, null);
+        setPlayerIsNext(true);
+      }
+    }, 1200);
+
+    return () => clearTimeout(aiMoveTimeout);
+  }
+
+  function handlePlayerMove(index) {
+    if (playerIsNext === false || squares[index] || calculateWinner(squares))
+      return;
+
+    const newSquares = squares.slice();
+    newSquares[index] = playerIsNext ? playerSymbol : aiSymbol;
+    setSquares(newSquares);
+    if (calculateWinner(newSquares) === playerSymbol) {
+      setStatusMessage("You won!");
+      setGamesPlayed(gamesPlayed + 1);
+    } else {
+      setPlayerIsNext(false);
+    }
   }
 
   function randomMove(squares, aiSymbol) {
@@ -51,7 +121,6 @@ export default function Game() {
       .map((square, index) => (square === null ? index : null))
       .filter((index) => index !== null);
 
-    // Check for a block move
     for (let index of availableMoves) {
       const testSquares = squares.slice();
       testSquares[index] = playerSymbol;
@@ -61,7 +130,6 @@ export default function Game() {
       }
     }
 
-    // If no block is needed, make a random move
     return randomMove(squares, aiSymbol);
   }
 
@@ -96,29 +164,17 @@ export default function Game() {
     return bestMove.index;
   }
 
-  function aiMove(squares, playerSymbol, aiSymbol) {
-    if (difficultyLevel === 1) return randomMove(squares, aiSymbol);
-    if (difficultyLevel === 2)
-      return blockingMove(squares, playerSymbol, aiSymbol);
-    return minimaxMove(squares, aiSymbol, playerSymbol);
-  }
-
-  function handlePlay(index) {
-    if (playerIsNext === false) return;
-    if (squares[index] || calculateWinner(squares)) return;
-
-    const newSquares = squares.slice();
-    newSquares[index] = playerIsNext ? playerSymbol : aiSymbol;
-    setSquares(newSquares);
-    setPlayerIsNext(!playerIsNext);
-  }
-
   function gameReset() {
     setSquares(Array(9).fill(null));
     setPlayerSymbol(null);
     setAiSymbol(null);
     setPlayerIsNext(null);
-    setStatus("Choose your symbol");
+    setStatusMessage("Choose your symbol");
+  }
+
+  function aiReset() {
+    setGamesPlayed(0);
+    setDifficultyLevel(1);
   }
 
   function toggleDarkMode() {
@@ -157,18 +213,18 @@ export default function Game() {
         <img src={isDarkMode ? lightIcon : darkIcon} alt="Toggle theme" />
       </button>
       <div className="game-board">
-        <Board
-          squares={squares}
-          onPlay={handlePlay}
-          status={status}
-          playerIsNext={playerIsNext}
-          playerSymbol={playerSymbol}
-          aiSymbol={aiSymbol}
-        />
+        <div className="status">
+          <h1>{statusMessage}</h1>
+        </div>
+        <Board squares={squares} onPlay={handlePlayerMove} />
       </div>
-      <button className="game-controls">
+      <div className="game-controls">
         <button onClick={() => gameReset()}>Restart</button>
-      </button>
+        <button onClick={() => {
+          aiReset();
+          gameReset();
+        }}>Reset AI Difficulty</button>
+      </div>
     </div>
   );
 }
@@ -181,34 +237,13 @@ function Square({ value, onSquareClick }) {
   );
 }
 
-function Board({
-  squares,
-  onPlay,
-  status,
-  playerIsNext,
-  playerSymbol,
-  aiSymbol,
-}) {
-  const winner = calculateWinner(squares);
-  if (winner) {
-    status = `Winner: ${winner}`;
-  } else if (!squares.includes(null)) {
-    status = "Draw!";
-  } else {
-    status = playerIsNext
-      ? `Player's turn (${playerSymbol})`
-      : `AI's turn (${aiSymbol})`;
-  }
-
+function Board({ squares, onPlay }) {
   function handleClick(i) {
     onPlay(i);
   }
 
   return (
     <>
-      <div className="status">
-        <h1>{status}</h1>
-      </div>
       <div className="row">
         <Square value={squares[0]} onSquareClick={() => handleClick(0)} />
         <Square value={squares[1]} onSquareClick={() => handleClick(1)} />
