@@ -33,6 +33,76 @@ export default function Game() {
     setPlayerIsNext(Math.random() < 0.5);
   }
 
+  function randomMove(squares, aiSymbol) {
+    const availableMoves = squares
+      .map((square, index) => (square === null ? index : null))
+      .filter((index) => index !== null);
+
+    const randomMove =
+      availableMoves[Math.floor(Math.random() * availableMoves.length)];
+    const newSquares = squares.slice();
+    newSquares[randomMove] = aiSymbol;
+
+    return newSquares;
+  }
+
+  function blockingMove(squares, playerSymbol, aiSymbol) {
+    const availableMoves = squares
+      .map((square, index) => (square === null ? index : null))
+      .filter((index) => index !== null);
+
+    // Check for a block move
+    for (let index of availableMoves) {
+      const testSquares = squares.slice();
+      testSquares[index] = playerSymbol;
+      if (calculateWinner(testSquares) === playerSymbol) {
+        testSquares[index] = aiSymbol;
+        return testSquares;
+      }
+    }
+
+    // If no block is needed, make a random move
+    return randomMove(squares, aiSymbol);
+  }
+
+  function minimaxMove(squares, aiSymbol) {
+    const bestMove = minimax(squares, aiSymbol);
+    const newSquares = squares.slice();
+    newSquares[bestMove] = aiSymbol;
+    return newSquares;
+  }
+
+  function minimax(squares, currentPlayer) {
+    const opponent = currentPlayer === "X" ? "O" : "X";
+    const winner = calculateWinner(squares);
+
+    if (winner === currentPlayer) return { score: 1 };
+    if (winner === opponent) return { score: -1 };
+    if (squares.every(Boolean)) return { score: 0 };
+
+    let moves = [];
+    squares.forEach((square, index) => {
+      if (!square) {
+        const newSquares = squares.slice();
+        newSquares[index] = currentPlayer;
+        const result = minimax(newSquares, opponent);
+        moves.push({ index, score: -result.score });
+      }
+    });
+
+    const bestMove = moves.reduce((best, move) =>
+      move.score > best.score ? move : best
+    );
+    return bestMove.index;
+  }
+
+  function aiMove(squares, playerSymbol, aiSymbol) {
+    if (difficultyLevel === 1) return randomMove(squares, aiSymbol);
+    if (difficultyLevel === 2)
+      return blockingMove(squares, playerSymbol, aiSymbol);
+    return minimaxMove(squares, aiSymbol, playerSymbol);
+  }
+
   function handlePlay(index) {
     if (playerIsNext === false) return;
     if (squares[index] || calculateWinner(squares)) return;
@@ -101,19 +171,6 @@ export default function Game() {
       </button>
     </div>
   );
-}
-
-function aiMove(squares, aiSymbol) {
-  const availableMoves = squares
-    .map((square, index) => (square === null ? index : null))
-    .filter((index) => index !== null);
-
-  const randomMove =
-    availableMoves[Math.floor(Math.random() * availableMoves.length)];
-  const newSquares = squares.slice();
-  newSquares[randomMove] = aiSymbol;
-
-  return newSquares;
 }
 
 function Square({ value, onSquareClick }) {
