@@ -9,6 +9,7 @@ export default function Game() {
   const [playerIsNext, setPlayerIsNext] = useState(null);
   const [statusMessage, setStatusMessage] = useState("Choose your symbol");
   const [gamesPlayed, setGamesPlayed] = useState(0);
+  const [gamesCountForChangeDifficulty, setGamesCountForChangeDifficulty] = useState(0);
   const [difficultyLevel, setDifficultyLevel] = useState(1);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
@@ -17,6 +18,15 @@ export default function Game() {
       document.body.classList.add("dark-mode");
       setIsDarkMode(true);
     }
+
+    const savedGamesPlayed = localStorage.getItem("gamesPlayed");
+    if (savedGamesPlayed) setGamesPlayed(parseInt(savedGamesPlayed));
+
+    const savedDifficultyLevel = localStorage.getItem("difficultyLevel");
+    if (savedDifficultyLevel) setDifficultyLevel(parseInt(savedDifficultyLevel));
+
+    const savedGamesCountForChangeDifficulty = localStorage.getItem("gamesCountForChangeDifficulty");
+    if (savedGamesCountForChangeDifficulty) setGamesCountForChangeDifficulty(parseInt(savedGamesCountForChangeDifficulty));
 
     if (playerIsNext === true) {
       setStatusMessage(`Player's turn (${playerSymbol})`);
@@ -27,12 +37,14 @@ export default function Game() {
   }, [playerIsNext]);
 
   useEffect(() => {
-    if (gamesPlayed > 6 && difficultyLevel === 2) {
+    if (gamesCountForChangeDifficulty > 6 && difficultyLevel === 2) {
       setDifficultyLevel(3);
-    } else if (gamesPlayed > 3 && difficultyLevel === 1) {
+      localStorage.setItem("difficultyLevel", 3);
+    } else if (gamesCountForChangeDifficulty > 3 && difficultyLevel === 1) {
       setDifficultyLevel(2);
+      localStorage.setItem("difficultyLevel", 2);
     }
-  }, [gamesPlayed, difficultyLevel]);
+  }, [gamesCountForChangeDifficulty, difficultyLevel]);
 
   function handleSymbolChoice(symbol) {
     setPlayerSymbol(symbol);
@@ -81,9 +93,11 @@ export default function Game() {
       if (calculateWinner(aiSquares) === aiSymbol) {
         setStatusMessage("You lost.");
         setGamesPlayed(gamesPlayed + 1);
+        localStorage.setItem("gamesPlayed", gamesPlayed + 1);
       } else if (aiSquares.every((square) => square !== null)) {
         setStatusMessage("Draw!");
         setGamesPlayed(gamesPlayed + 1);
+        localStorage.setItem("gamesPlayed", gamesPlayed + 1);
       } else {
         changeStatusMessage(playerIsNext, null);
         setPlayerIsNext(true);
@@ -103,9 +117,13 @@ export default function Game() {
     if (calculateWinner(newSquares) === playerSymbol) {
       setStatusMessage("You won!");
       setGamesPlayed(gamesPlayed + 1);
+      setGamesCountForChangeDifficulty(gamesCountForChangeDifficulty + 1);
+      localStorage.setItem("gamesPlayed", gamesPlayed + 1);
+      localStorage.setItem("gamesCountForChangeDifficulty", gamesCountForChangeDifficulty + 1);
     } else if (newSquares.every((square) => square !== null)) {
       setStatusMessage("Draw!");
       setGamesPlayed(gamesPlayed + 1);
+      localStorage.setItem("gamesPlayed", gamesPlayed + 1);
     } else {
       setPlayerIsNext(false);
     }
@@ -146,8 +164,6 @@ export default function Game() {
         return testSquares;
       }
     }
-
-    // if (difficultyLevel === 3) return minimaxMove(squares, aiSymbol);
 
     return randomMove(squares, aiSymbol);
   }
@@ -208,8 +224,10 @@ export default function Game() {
   }
 
   function aiReset() {
-    setGamesPlayed(0);
+    setGamesCountForChangeDifficulty(0);
     setDifficultyLevel(1);
+    localStorage.setItem("difficultyLevel", 1);
+    localStorage.setItem("gamesCountForChangeDifficulty", 0);
   }
 
   function toggleDarkMode() {
