@@ -84,10 +84,11 @@ code {
   margin-right: -2px;
   margin-top: -2px;
   font-size: calc(20px + 4vw);
+  user-select: none;
 }
 
 .square:hover {
-  background: #f0f0f0;
+  background: #e4e4e4;
   cursor: pointer;
 }
 
@@ -126,8 +127,7 @@ code {
   width: 260px;
   margin: 0;
   font-size: 22px;
-  outline: none;
-  border: none;
+  border: 2px solid #999;
   background-color: #f0f0f0;
   border-radius: 5px;
   color: #333;
@@ -138,6 +138,16 @@ code {
 .game-controls button:hover {
   background-color: #e6e6e6;
   cursor: pointer;
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  color: black;
 }
 
 /* Dark mode */
@@ -171,6 +181,8 @@ code {
 .dark-mode .game-controls button {
   background-color: #444;
   color: #f1f1f1;
+  border: none;
+  outline: none;
 }
 
 .dark-mode .game-controls button:hover {

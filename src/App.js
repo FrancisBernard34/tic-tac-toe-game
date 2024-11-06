@@ -27,8 +27,10 @@ export default function Game() {
   }, [playerIsNext]);
 
   useEffect(() => {
-    if (gamesPlayed > 0 && gamesPlayed % 5 === 0 && difficultyLevel < 3) {
-      setDifficultyLevel(difficultyLevel + 1);
+    if (gamesPlayed > 6 && difficultyLevel === 2) {
+      setDifficultyLevel(3);
+    } else if (gamesPlayed > 3 && difficultyLevel === 1) {
+      setDifficultyLevel(2);
     }
   }, [gamesPlayed, difficultyLevel]);
 
@@ -58,7 +60,7 @@ export default function Game() {
 
   function aiMove(squares, playerSymbol, aiSymbol) {
     if (difficultyLevel === 1) return randomMove(squares, aiSymbol);
-    if (difficultyLevel === 2)
+    if (difficultyLevel == 2)
       return blockingMove(squares, playerSymbol, aiSymbol);
 
     return minimaxMove(squares, aiSymbol, playerSymbol);
@@ -79,6 +81,9 @@ export default function Game() {
       if (calculateWinner(aiSquares) === aiSymbol) {
         setStatusMessage("You lost.");
         setGamesPlayed(gamesPlayed + 1);
+      } else if (aiSquares.every((square) => square !== null)) {
+        setStatusMessage("Draw!");
+        setGamesPlayed(gamesPlayed + 1);
       } else {
         changeStatusMessage(playerIsNext, null);
         setPlayerIsNext(true);
@@ -97,6 +102,9 @@ export default function Game() {
     setSquares(newSquares);
     if (calculateWinner(newSquares) === playerSymbol) {
       setStatusMessage("You won!");
+      setGamesPlayed(gamesPlayed + 1);
+    } else if (newSquares.every((square) => square !== null)) {
+      setStatusMessage("Draw!");
       setGamesPlayed(gamesPlayed + 1);
     } else {
       setPlayerIsNext(false);
@@ -123,6 +131,15 @@ export default function Game() {
 
     for (let index of availableMoves) {
       const testSquares = squares.slice();
+      testSquares[index] = aiSymbol;
+      if (calculateWinner(testSquares) === aiSymbol) {
+        testSquares[index] = aiSymbol;
+        return testSquares;
+      }
+    }
+
+    for (let index of availableMoves) {
+      const testSquares = squares.slice();
       testSquares[index] = playerSymbol;
       if (calculateWinner(testSquares) === playerSymbol) {
         testSquares[index] = aiSymbol;
@@ -130,38 +147,56 @@ export default function Game() {
       }
     }
 
+    // if (difficultyLevel === 3) return minimaxMove(squares, aiSymbol);
+
     return randomMove(squares, aiSymbol);
   }
 
-  function minimaxMove(squares, aiSymbol) {
-    const bestMove = minimax(squares, aiSymbol);
-    const newSquares = squares.slice();
-    newSquares[bestMove] = aiSymbol;
-    return newSquares;
-  }
-
-  function minimax(squares, currentPlayer) {
-    const opponent = currentPlayer === "X" ? "O" : "X";
+  function minimax(squares, isMaximizing, aiSymbol, playerSymbol) {
     const winner = calculateWinner(squares);
 
-    if (winner === currentPlayer) return { score: 1 };
-    if (winner === opponent) return { score: -1 };
+    if (winner === aiSymbol) return { score: 1 };
+    if (winner === playerSymbol) return { score: -1 };
     if (squares.every(Boolean)) return { score: 0 };
 
-    let moves = [];
-    squares.forEach((square, index) => {
-      if (!square) {
-        const newSquares = squares.slice();
-        newSquares[index] = currentPlayer;
-        const result = minimax(newSquares, opponent);
-        moves.push({ index, score: -result.score });
-      }
-    });
+    const availableMoves = squares
+      .map((square, index) => (square === null ? index : null))
+      .filter((index) => index !== null);
 
-    const bestMove = moves.reduce((best, move) =>
-      move.score > best.score ? move : best
-    );
-    return bestMove.index;
+    if (isMaximizing) {
+      let bestScore = -Infinity;
+      let bestMove = null;
+      for (const index of availableMoves) {
+        const newSquares = squares.slice();
+        newSquares[index] = aiSymbol;
+        const result = minimax(newSquares, false, aiSymbol, playerSymbol);
+        if (result.score > bestScore) {
+          bestScore = result.score;
+          bestMove = index;
+        }
+      }
+      return { index: bestMove, score: bestScore };
+    } else {
+      let bestScore = Infinity;
+      let bestMove = null;
+      for (const index of availableMoves) {
+        const newSquares = squares.slice();
+        newSquares[index] = playerSymbol;
+        const result = minimax(newSquares, true, aiSymbol, playerSymbol);
+        if (result.score < bestScore) {
+          bestScore = result.score;
+          bestMove = index;
+        }
+      }
+      return { index: bestMove, score: bestScore };
+    }
+  }
+
+  function minimaxMove(squares, aiSymbol, playerSymbol) {
+    const bestMove = minimax(squares, true, aiSymbol, playerSymbol);
+    const newSquares = squares.slice();
+    newSquares[bestMove.index] = aiSymbol;
+    return newSquares;
   }
 
   function gameReset() {
@@ -220,10 +255,18 @@ export default function Game() {
       </div>
       <div className="game-controls">
         <button onClick={() => gameReset()}>Restart</button>
-        <button onClick={() => {
-          aiReset();
-          gameReset();
-        }}>Reset AI Difficulty</button>
+        <button
+          onClick={() => {
+            aiReset();
+            gameReset();
+          }}
+        >
+          Reset AI Difficulty
+        </button>
+      </div>
+      <div className="game-info">
+        <p>Games played: {gamesPlayed}</p>
+        <p>AI difficulty: {difficultyLevel}</p>
       </div>
     </div>
   );
