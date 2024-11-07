@@ -140,6 +140,11 @@ code {
   cursor: pointer;
 }
 
+.game-controls button:disabled {
+  background-color: #ccc;
+  cursor: default;
+}
+
 .game-info {
   display: flex;
   flex-direction: column;
@@ -188,6 +193,11 @@ code {
 
 .dark-mode .game-controls button:hover {
   background-color: #333;
+}
+
+.dark-mode .game-controls button:disabled {
+  background-color: #1a1a1a;
+  opacity: 0.5;
 }
 
 .dark-mode .game-info {

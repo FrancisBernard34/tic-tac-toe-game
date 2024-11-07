@@ -4,6 +4,7 @@ import darkIcon from "./icons/dark-icon.svg";
 
 export default function Game() {
   const [squares, setSquares] = useState(Array(9).fill(null));
+  const [lastSquares, setLastSquares] = useState(null);
   const [playerSymbol, setPlayerSymbol] = useState(null);
   const [aiSymbol, setAiSymbol] = useState(null);
   const [playerIsNext, setPlayerIsNext] = useState(null);
@@ -13,6 +14,7 @@ export default function Game() {
     useState(0);
   const [difficultyLevel, setDifficultyLevel] = useState(1);
   const [resetting, setResetting] = useState(false);
+  const [isButtonDisabled, setIsButtonDisabled] = useState(false);
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   const aiMoveTimeout = useRef(null);
@@ -119,6 +121,8 @@ export default function Game() {
     if (playerIsNext === false || squares[index] || calculateWinner(squares))
       return;
 
+    setIsButtonDisabled(false);
+    setLastSquares(squares);
     const newSquares = squares.slice();
     newSquares[index] = playerIsNext ? playerSymbol : aiSymbol;
     setSquares(newSquares);
@@ -235,7 +239,7 @@ export default function Game() {
   function gameReset() {
     setResetting(true);
 
-    if(aiMoveTimeout.current) {
+    if (aiMoveTimeout.current) {
       clearTimeout(aiMoveTimeout.current);
       aiMoveTimeout.current = null;
     }
@@ -246,7 +250,7 @@ export default function Game() {
     setPlayerIsNext(null);
     setStatusMessage("Choose your symbol");
 
-    setTimeout(() => setResetting(false), 300)
+    setTimeout(() => setResetting(false), 300);
   }
 
   function aiReset() {
@@ -254,6 +258,13 @@ export default function Game() {
     setDifficultyLevel(1);
     localStorage.setItem("difficultyLevel", 1);
     localStorage.setItem("gamesCountForChangeDifficulty", 0);
+  }
+
+  function goBackOneMove() {
+    if (playerIsNext === false) return;
+
+    setIsButtonDisabled(true);
+    setSquares(lastSquares);
   }
 
   function toggleDarkMode() {
@@ -278,8 +289,18 @@ export default function Game() {
         <div className="symbol-choice">
           <h2>Choose your symbol</h2>
           <div className="symbol-buttons">
-            <button onClick={() => handleSymbolChoice("X")} disabled={resetting}>X</button>
-            <button onClick={() => handleSymbolChoice("O")} disabled={resetting}>O</button>
+            <button
+              onClick={() => handleSymbolChoice("X")}
+              disabled={resetting}
+            >
+              X
+            </button>
+            <button
+              onClick={() => handleSymbolChoice("O")}
+              disabled={resetting}
+            >
+              O
+            </button>
           </div>
         </div>
       </>
@@ -298,7 +319,16 @@ export default function Game() {
         <Board squares={squares} onPlay={handlePlayerMove} />
       </div>
       <div className="game-controls">
-        <button onClick={gameReset}>Restart</button>
+        {calculateWinner(squares) === null &&
+          squares.filter((square) => square === playerSymbol).length > 0 &&
+          squares.some((square) => square === null) && (
+            <button onClick={goBackOneMove} disabled={isButtonDisabled}>
+              Go back to last move
+            </button>
+          )}
+        <button onClick={gameReset}>
+          Restart
+        </button>
         <button
           onClick={() => {
             aiReset();
