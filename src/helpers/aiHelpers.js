@@ -34,52 +34,61 @@ export function blockingMove(squares, playerSymbol, aiSymbol) {
   return randomMove(squares, aiSymbol);
 }
 
-export function minimax(squares, isMaximizing, aiSymbol, playerSymbol) {
+export function minimax(squares, isMaximizing, aiSymbol, playerSymbol, depth = 0) {
   const winner = calculateWinner(squares);
-  if (winner === aiSymbol) return { score: 1 };
-  if (winner === playerSymbol) return { score: -1 };
+  
+  if (winner === aiSymbol) return { score: 10 - depth };
+  if (winner === playerSymbol) return { score: depth - 10 };
   if (squares.every(Boolean)) return { score: 0 };
 
   const availableMoves = squares
-    .map((square, index) => (square === null ? index : null))
-    .filter((index) => index !== null);
+      .map((square, index) => square === null ? index : null)
+      .filter(index => index !== null);
 
-  console.log("available moves: ")
-  console.log(availableMoves)
-  console.log("squares: ")
-  console.log(squares)
-  console.log("isMaximizing: ")
-  console.log(isMaximizing)
-  console.log("aiSymbol: ")
-  console.log(aiSymbol)
-  console.log("playerSymbol: ")
-  console.log(playerSymbol)
   if (isMaximizing) {
-    let bestScore = -Infinity;
-    let bestMove = null;
-    for (const index of availableMoves) {
-      const newSquares = squares.slice();
-      newSquares[index] = aiSymbol;
-      const result = minimax(newSquares, false, aiSymbol, playerSymbol);
-      if (result.score > bestScore) {
-        bestScore = result.score;
-        bestMove = index;
+      let bestScore = -Infinity;
+      let bestMove = null;
+      
+      for (const index of availableMoves) {
+          const newSquares = [...squares];
+          newSquares[index] = aiSymbol;
+          if (calculateWinner(newSquares) === aiSymbol) {
+              return { index, score: 10 - depth };
+          }
       }
-    }
-    return { index: bestMove, score: bestScore };
+      
+      for (const index of availableMoves) {
+          const newSquares = [...squares];
+          newSquares[index] = aiSymbol;
+          const result = minimax(newSquares, false, aiSymbol, playerSymbol, depth + 1);
+          if (result.score > bestScore) {
+              bestScore = result.score;
+              bestMove = index;
+          }
+      }
+      return { index: bestMove, score: bestScore };
   } else {
-    let bestScore = Infinity;
-    let bestMove = null;
-    for (const index of availableMoves) {
-      const newSquares = squares.slice();
-      newSquares[index] = playerSymbol;
-      const result = minimax(newSquares, true, aiSymbol, playerSymbol);
-      if (result.score < bestScore) {
-        bestScore = result.score;
-        bestMove = index;
+      let bestScore = Infinity;
+      let bestMove = null;
+      
+      for (const index of availableMoves) {
+          const newSquares = [...squares];
+          newSquares[index] = playerSymbol;
+          if (calculateWinner(newSquares) === playerSymbol) {
+              return { index, score: depth - 10 };
+          }
       }
-    }
-    return { index: bestMove, score: bestScore };
+      
+      for (const index of availableMoves) {
+          const newSquares = [...squares];
+          newSquares[index] = playerSymbol;
+          const result = minimax(newSquares, true, aiSymbol, playerSymbol, depth + 1);
+          if (result.score < bestScore) {
+              bestScore = result.score;
+              bestMove = index;
+          }
+      }
+      return { index: bestMove, score: bestScore };
   }
 }
 
