@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/tic-tac-toe-game/static/css/main.7fa2231a.css",
-    "main.js": "/tic-tac-toe-game/static/js/main.6eaac1c3.js",
+    "main.css": "/tic-tac-toe-game/static/css/main.126f6519.css",
+    "main.js": "/tic-tac-toe-game/static/js/main.d55b5cb5.js",
     "static/media/RobotoMono-Thin.ttf": "/tic-tac-toe-game/static/media/RobotoMono-Thin.1a9534fd24de76752477.ttf",
     "static/media/light-icon.svg": "/tic-tac-toe-game/static/media/light-icon.023e2986ff069d010f3a2b669606f367.svg",
     "static/media/dark-icon.svg": "/tic-tac-toe-game/static/media/dark-icon.dce061275b0676685df8869a5c03da07.svg",
     "index.html": "/tic-tac-toe-game/index.html",
-    "main.7fa2231a.css.map": "/tic-tac-toe-game/static/css/main.7fa2231a.css.map",
-    "main.6eaac1c3.js.map": "/tic-tac-toe-game/static/js/main.6eaac1c3.js.map"
+    "main.126f6519.css.map": "/tic-tac-toe-game/static/css/main.126f6519.css.map",
+    "main.d55b5cb5.js.map": "/tic-tac-toe-game/static/js/main.d55b5cb5.js.map"
   },
   "entrypoints": [
-    "static/css/main.7fa2231a.css",
-    "static/js/main.6eaac1c3.js"
+    "static/css/main.126f6519.css",
+    "static/js/main.d55b5cb5.js"
   ]
 }
