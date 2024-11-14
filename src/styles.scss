@@ -1,0 +1,233 @@
+$font-family: 'Roboto Mono', sans-serif;
+$primary-bg: #f9f9c9;
+$primary-color: #333;
+$border-color: #999;
+$hover-bg: #e6e6e6;
+$button-bg: #f0f0f0;
+$dark-bg: #2d2d2d;
+$dark-element-bg: #444;
+$dark-hover: #333;
+$dark-text: #f1f1f1;
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin button-base {
+  background-color: $button-bg;
+  border: 2px solid $border-color;
+  border-radius: 5px;
+  color: $primary-color;
+  padding: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: $hover-bg;
+  }
+
+  &:disabled {
+    background-color: #ccc;
+    cursor: default;
+  }
+}
+
+@font-face {
+  font-family: 'Roboto Mono';
+  src: url('./fonts/RobotoMono-Thin.ttf') format('truetype');
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  font-family: $font-family;
+  margin: 20px;
+  padding: 0;
+  background-color: $primary-bg;
+  color: $primary-color;
+}
+
+.symbol-choice {
+  @include flex-center;
+  flex-direction: column;
+  margin-top: 100px;
+
+  h2 {
+    font-size: 2.5em;
+    margin-bottom: 20px;
+  }
+
+  .symbol-buttons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 20px;
+  }
+
+  button {
+    width: 120px;
+    height: 120px;
+    margin-top: 5px;
+    font-size: 3.5em;
+    @include button-base;
+  }
+}
+
+.game {
+  @include flex-center;
+  flex-direction: column;
+  margin-top: 100px;
+
+  &-board {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  &-controls {
+    @include flex-center;
+    flex-direction: column;
+    gap: 20px;
+
+    button {
+      width: 260px;
+      margin: 0;
+      font-size: 22px;
+      @include button-base;
+    }
+  }
+
+  &-info {
+    @include flex-center;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 20px;
+    color: black;
+    font-weight: bold;
+  }
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+}
+
+.square {
+  background: #fff;
+  border: 2px solid $border-color;
+  font-weight: bold;
+  line-height: 34px;
+  padding: 0;
+  text-align: center;
+  width: 25vw;
+  height: 25vw;
+  max-width: 100px;
+  max-height: 100px;
+  margin-right: -2px;
+  margin-top: -2px;
+  font-size: calc(20px + 4vw);
+  user-select: none;
+
+  &:hover {
+    background: #e4e4e4;
+    cursor: pointer;
+  }
+}
+
+.status {
+  @include flex-center;
+  margin-bottom: 20px;
+}
+
+.dark-mode-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border-radius: 50%;
+  background-color: $button-bg;
+  border: 2px solid $border-color;
+  cursor: pointer;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: $hover-bg;
+  }
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+}
+
+.dark-mode {
+  background-color: $dark-bg;
+  color: $dark-text;
+
+  .game-info {
+    color: $dark-text;
+  }
+
+  .dark-mode-toggle {
+    background-color: $dark-element-bg;
+    border-color: $dark-text;
+
+    &:hover {
+      background-color: $dark-hover;
+    }
+  }
+
+  .symbol-choice button {
+    background-color: $dark-element-bg;
+    color: $dark-text;
+
+    &:hover {
+      background-color: $dark-hover;
+    }
+  }
+
+  .square {
+    background: $dark-element-bg;
+    color: $dark-text;
+
+    &:hover {
+      background: $dark-hover;
+    }
+  }
+
+  .status {
+    color: $dark-text;
+  }
+
+  .game-controls button {
+    background-color: $dark-element-bg;
+    color: $dark-text;
+    border: none;
+    outline: none;
+
+    &:hover {
+      background-color: $dark-hover;
+    }
+
+    &:disabled {
+      background-color: #1a1a1a;
+      opacity: 0.5;
+    }
+  }
+}
