@@ -260,7 +260,11 @@ export default function Game() {
 
 function Square({ value, onSquareClick }) {
   return (
-    <button className="square" onClick={onSquareClick}>
+    <button 
+      className="square" 
+      onClick={onSquareClick}
+      data-testid={`board-square-${value !== null ? value : 'empty'}`}
+    >
       {value}
     </button>
   );
