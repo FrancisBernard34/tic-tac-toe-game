@@ -245,9 +245,40 @@ describe("Game Component", () => {
       expect(store.getState().game.difficultyLevel).toBe(1);
       expect(store.getState().game.gamesCountForChangeDifficulty).toBe(0);
     });
-  });
 
-  describe("Edge Cases", () => {
+    test("handles undo move correctly", () => {
+      jest.useFakeTimers();
+
+      const initialState = {
+        game: {
+          ...store.getState().game,
+          playerIsNext: true,
+          playerSymbol: "X",
+          aiSymbol: "O",
+          squares: ["X", "O", null, null, null, null, null, null, null],
+        },
+      };
+      store = createTestStore(initialState);
+
+      render(
+        <Provider store={store}>
+          <Game />
+        </Provider>
+      );
+
+      const emptySquare = screen.getAllByTestId("board-square-empty")[0];
+      fireEvent.click(emptySquare);
+
+      act(() => {
+        jest.advanceTimersByTime(1500);
+      });
+
+      const undoButton = screen.getByRole("button", { name: "Go back to last move" });
+      fireEvent.click(undoButton);
+
+      expect(store.getState().game.squares).toEqual(["X", "O", null, null, null, null, null, null, null])
+    });
+
     test("handles draw condition correctly", async () => {
       const drawState = {
         game: {
