@@ -69,6 +69,22 @@ The game will open in your default browser at `http://localhost:3000`.
 - [Redux Toolkit](https://redux-toolkit.js.org/) - State management
 - [Sass](https://sass-lang.com/) - Styling
 - [Create React App](https://create-react-app.dev/) - Build setup
+- [Jest](https://jestjs.io/) & [React Testing Library](https://testing-library.com/react) - Testing
+
+## Testing
+
+The game includes a comprehensive test suite built with Jest and React Testing Library. The tests cover:
+
+- Game initialization and setup
+- Player and AI moves
+- Win/loss/draw conditions
+- Game controls (reset, undo, theme toggle)
+- Edge cases and invalid moves
+
+Run the tests with:
+```bash
+npm test
+```
 
 ## Features in Detail
 
