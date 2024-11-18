@@ -11,7 +11,6 @@ A modern, responsive Tic-Tac-Toe game built with React and Redux, featuring an i
 - Choose your symbol (X or O)
 - Undo move functionality
 - Fully responsive design
-- Smooth animations and transitions
 - Game state persistence
 
 ## Live Demo
